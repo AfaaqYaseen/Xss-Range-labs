@@ -1,0 +1,38 @@
+id: S03
+title: Encoded on the way in, not out
+category: stored
+difficulty: advanced
+engine: stored
+public:
+  objective: Store a value that executes JavaScript when the record is viewed.
+  description: Submit the `comment` field below, then reload to see it rendered back.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  fields:
+  - comment
+  context: html_text
+  transform_in:
+  - html_encode
+  transform_out: []
+  filter:
+    type: none
+private:
+  why: stored value is rendered without output encoding at view time
+walkthrough:
+  hints:
+  - The comment is HTML-encoded on the way *in* (at submit time) -- but check what happens on the way
+    out.
+  - If encoding only happens once, on input, and the output step does nothing, what does the stored (already-encoded)
+    value look like when rendered -- and is it encoded a second time?
+  solution: '`transform_in: [html_encode]` runs once at submit time, and `transform_out` is empty -- the
+    value is encoded once in storage and then rendered **without re-encoding**, which is actually safe
+    in this specific round-trip since the stored bytes are already entity-encoded. The real bug this lab
+    demonstrates is that encoding happens at the wrong layer: it protects *this* output path by coincidence,
+    but anywhere else in a hypothetical app that reads the same stored comment and decodes it (e.g. for
+    an API response, an email digest, or a different template) would get raw HTML back. For this specific
+    lab, submitting `<img src=x onerror=alert(1)>` gets encoded to `&lt;img ...&gt;` on the way in and
+    is displayed as inert text -- so the intended finding is to recognize *why* it''s not exploitable
+    here and report that, rather than force an injection. Mark it solved once you''ve confirmed and explained
+    that single-point input encoding without context-aware output encoding is still a design smell even
+    when this particular path is safe.'

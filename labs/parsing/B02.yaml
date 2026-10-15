@@ -1,0 +1,27 @@
+id: B02
+title: Broken/unclosed tags
+category: parsing
+difficulty: beginner
+engine: parse
+public:
+  objective: Predict how the browser tokenizes this markup, then verify against the rendered DOM tree.
+  description: Enter markup and inspect the resulting DOM structure below it.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  demo: <div><spa>oops</div>
+private:
+  why: HTML tokenizer state machine rules (special elements, comments, quirks) reshape the tree
+walkthrough:
+  hints:
+  - '`<spa>` isn''t a real tag, and the `<p>` is never closed. The HTML5 tokenizer still has to produce
+    *some* tree -- predict it before you check.'
+  - Unknown tags like `<spa>` are treated as ordinary (non-special) elements, so they nest normally; the
+    real question is where the unclosed `</div>` forces things to close.
+  solution: '`<div><spa>oops</div>` tokenizes with `<spa>` as a generic unknown element (browsers don''t
+    validate tag names against a dictionary -- any `<name>` is a valid custom/unknown element). The tree
+    ends up as `div > spa > "oops"`, and the trailing `</div>` closes the `div` because that''s the first
+    open tag matching `/div`''s tag name on the open-elements stack -- so `spa` gets implicitly closed
+    along with it, not left open. Confirm with DevTools and mark solved. The lesson: tag-name-based filters
+    and "this will never close properly" assumptions are unreliable -- the tokenizer is forgiving in specific,
+    memorizable ways that attackers rely on.'

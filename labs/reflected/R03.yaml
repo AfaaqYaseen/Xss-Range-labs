@@ -1,0 +1,34 @@
+id: R03
+title: Unquoted attribute context
+category: reflected
+difficulty: intermediate
+engine: reflected
+public:
+  objective: Make the target execute JavaScript via a GET parameter.
+  description: The page reflects the `q` parameter back into the page.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  params:
+  - q
+  context: unquoted_attribute
+  transform: []
+  filter:
+    type: none
+private:
+  why: user input reaches an HTML/JS context without output encoding, and any filter present is a single
+    non-recursive pass
+walkthrough:
+  hints:
+  - 'This one reflects into an attribute that isn''t quoted at all: `data-note={q}`.'
+  - Unquoted attributes end at the first whitespace. You don't need a quote character to break out --
+    a space is enough.
+  solution: '`q` lands in `<div data-note={q} class=''reflect-attr''>` with no quotes around it (`unquoted_attribute`
+    context). A plain space ends the attribute value, so you can add a new attribute right there:
+
+
+    `/lab/R03/run?q=x onmouseover=alert(1)`
+
+
+    (URL-encode the space as `%20` or `+` when sending it as a query string.) Fix: always quote attribute
+    values, and encode the value inside them.'

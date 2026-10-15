@@ -1,0 +1,27 @@
+id: F03
+title: Static status page (safe control)
+category: final
+difficulty: intermediate
+engine: parse
+hidden: true
+public:
+  objective: Determine whether this application is exploitable for XSS. Conclude vulnerable, or not exploitable
+    and why, then mark it solved either way.
+  description: ''
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  demo: <div>all systems operational</div>
+private:
+  why: 'deliberately safe control: nothing here reaches a dangerous sink'
+walkthrough:
+  hints:
+  - Blind lab -- but check carefully whether there's actually a dangerous sink anywhere in this one before
+    assuming it's exploitable.
+  - This loads the `parse` engine with a static demo string (`all systems operational`) and no attacker-controlled
+    input path into any sink at all.
+  solution: 'Investigation: this loads `engine_parse.js` with a fixed `demo` string and no mechanism for
+    attacker input to reach it (unlike the interactive B-series parsing labs, there''s no input box wired
+    to a sink the attacker controls here) -- it''s a static status display. Conclusion: **not exploitable**
+    / safe control. Document that you checked for any reachable input-to-sink path and found none, rather
+    than assuming every blind lab must hide a bug.'

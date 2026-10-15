@@ -1,0 +1,32 @@
+id: M01
+title: Basic mutation via table/td
+category: mxss
+difficulty: intermediate
+engine: mxss
+public:
+  objective: Find markup that looks inert after one insertion pass but changes meaning after a second.
+  description: Markup is (optionally sanitized, then) inserted, serialized back to a string, and re-inserted.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  seed: <table><tr><td>cell
+  sanitizeFirst: false
+private:
+  why: parser/serializer differentials mutate the tree across passes
+walkthrough:
+  hints:
+  - '`<table><tr><td>cell` is inserted once (no sanitizer), serialized back to a string, then re-inserted.
+    Watch what the browser does to stray text when it builds a table.'
+  - HTML table parsing moves "foster-parented" text (text that appears where only `<tr>`/`<td>` are valid)
+    *outside* the table in the serialized output -- compare pass 1's DOM to pass 2's.
+  solution: 'On the first insertion, the browser''s table-construction algorithm accepts `<table><tr><td>cell`
+    even though it''s missing closing tags -- it auto-closes `td`/`tr`/`table` at the end. The *input*
+    `<table><tr><td>cell` is inert on its own. The mutation shows up with text or stray markup placed
+    where the table parser doesn''t expect it (directly inside `<table>`, before any `<tr>`/`<td>`): that
+    text gets "foster-parented" -- moved by the parser to just *before* the table in the tree, not where
+    it was written. So on the *second* pass (serialize pass-1''s DOM back to a string, then re-parse it),
+    content that looked trapped safely inside table structure can end up outside it, in a context where
+    tags that were previously inert (because they were foster-parented as text/comments) are now parsed
+    as real markup. Try seeding (via the input box) something like `<table><td><img src=x onerror=alert(1)></table>`
+    and compare the DOM after pass 1 vs. after pass 2 -- the `<img>` foster-parents out from under the
+    table and becomes a live, executing element once re-serialized and re-inserted.'

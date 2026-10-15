@@ -1,0 +1,38 @@
+id: PP01
+title: Deep-merge pollution -> innerHTML gadget
+category: prototype_pollution
+difficulty: advanced
+engine: pp
+public:
+  objective: Pollute Object.prototype via the merge below, then get a gadget to read the polluted value
+    into a sink.
+  description: The merge implementation here uses 'deep' semantics.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  mode: deep
+  gadgets:
+  - type: innerHTML
+    path: template
+  defaults:
+    template: <b>default</b>
+private:
+  why: deep merge copies attacker keys without guarding __proto__/constructor/prototype
+walkthrough:
+  hints:
+  - The merge is `deep` and copies keys with no `__proto__`/`constructor`/`prototype` guard -- look at
+    `deepMerge` in `engine_pp.js`.
+  - The gadget reads `template` off a *brand-new, empty* object (`{}`), not off the merged result -- so
+    to affect it you have to pollute `Object.prototype.template` itself, not just the merge target.
+  solution: '`deepMerge` walks every key of your JSON input, including `__proto__`, and assigns straight
+    into it with no guard. Submitting:
+
+
+    `{"__proto__":{"template":"<img src=x onerror=alert(1)>"}}`
+
+
+    into the textarea and clicking "merge & render gadgets" sets `Object.prototype.template`. The gadget
+    then does `get({}, ''template'')` on a fresh, unrelated object -- since the property lookup walks
+    the prototype chain and finds `template` on `Object.prototype` now, it reads back your payload and
+    writes it into `innerHTML`. Fix: guard `__proto__`/`constructor`/`prototype` explicitly in any recursive
+    merge, or use `Object.create(null)` / `Map` for merge targets, or `Object.freeze(Object.prototype)`.'

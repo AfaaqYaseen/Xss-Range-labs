@@ -1,0 +1,11 @@
+services:
+  range:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - range-data:/srv/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-dev-only-not-secret}
+volumes:
+  range-data:

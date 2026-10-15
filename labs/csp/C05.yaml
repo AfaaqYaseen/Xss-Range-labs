@@ -1,0 +1,37 @@
+id: C05
+title: unsafe-eval + inline script gadget
+category: csp
+difficulty: advanced
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    script-src: '''unsafe-inline'' ''unsafe-eval'''
+  page_html: <div data-config='1'></div><script>document.querySelectorAll('[data-config]').forEach(el=>{try{eval('('+el.dataset.config+')')}catch(e){}})</script><p>a
+    'config widget' reads data-config and eval()s it</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: gadget'
+walkthrough:
+  hints:
+  - '`''unsafe-inline'' ''unsafe-eval''` -- the page already ships a "config widget" that reads `data-config`
+    off any element and `eval()`s it.'
+  - You don't need to inject a `<script>` tag at all. Can you get your own content onto the page as a
+    `data-config` attribute that the existing widget will read and `eval`?
+  solution: 'The shipped inline script does: `document.querySelectorAll(''[data-config]'').forEach(el
+    => eval(''('' + el.dataset.config + '')''))`. `''unsafe-eval''` in the CSP permits this `eval()` call
+    to run at all. This is a *gadget*: CSP can''t tell "legitimate app eval" from "attacker-triggered
+    eval" -- it only sees that eval is allowed or not. If any other part of the app (not shown reflected
+    here, but representative of real apps) lets an attacker add an element with a `data-config` attribute
+    anywhere on this page -- a comment field, a profile bio, anything reaching `innerHTML` -- the existing
+    gadget script will `eval()` it for free, completely bypassing the need to inject `<script>` yourself.
+    Demonstrate it by using DevTools to add `<div data-config="alert(1)"></div>` to the DOM and watch
+    the existing gadget script pick it up on its next pass (or trigger a fresh pass if the widget re-scans)
+    -- or better, point to how an `innerHTML`-based injection elsewhere in a real deployment would achieve
+    the same thing without DevTools. Fix: never ship `''unsafe-eval''`; redesign config-widget patterns
+    like this to use `JSON.parse` on explicit, validated data, not `eval`.'

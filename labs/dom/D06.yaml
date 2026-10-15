@@ -1,0 +1,28 @@
+id: D06
+title: document.cookie -> innerHTML
+category: dom
+difficulty: advanced
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: cookie
+    key: pref
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - Source is `document.cookie`, specifically the `pref` cookie. Use the helper panel to set a cookie,
+    then reload.
+  - Cookies set via `document.cookie` from client-side JS (no `HttpOnly`) are readable and writable by
+    any script on the page, including one you've already gotten to run via an earlier lab or the helper
+    panel.
+  solution: 'Source: `document.cookie`, key `pref`. Sink: `innerHTML`. Use the helper panel, enter `<img
+    src=x onerror=alert(1)>`, click "set cookie", then reload -- `render()` reads the `pref` cookie via
+    regex and writes it straight into `innerHTML`. Fix: never trust cookie values for DOM writes; sanitize
+    or escape before use, and mark sensitive cookies `HttpOnly` (though that only stops JS *reading* them,
+    not this kind of self-XSS).'

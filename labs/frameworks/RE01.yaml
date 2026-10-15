@@ -1,0 +1,29 @@
+id: RE01
+title: Default text-child escaping (safe control)
+category: frameworks
+difficulty: beginner
+engine: react
+public:
+  objective: Assess this React 18 app for XSS via URL parameters (?name=, ?html=, ?title=).
+  description: React auto-escapes text children; look for anywhere that opts out of that.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: escaping
+  defaults:
+    name: guest
+private:
+  why: text children ARE escaped by React -- this one should not be exploitable
+walkthrough:
+  hints:
+  - Try `?name=<script>alert(1)</script>` and `?name=<img src=x onerror=alert(1)>` -- this component renders
+    `name` as a plain JSX text child.
+  - React escapes text children (`e('div', null, 'hello, ', name)`) automatically -- there's no `dangerouslySetInnerHTML`
+    anywhere in this pattern.
+  solution: This is the deliberately **safe control** for the frameworks category. `name` is rendered
+    as a JSX/`React.createElement` text child, which React escapes automatically before inserting into
+    the DOM -- `<script>` tags and HTML metacharacters are rendered as literal visible text, never parsed
+    as markup. Try `?name=<img src=x onerror=alert(1)>` and confirm the payload shows up as plain text
+    on the page (e.g. you'll literally see the angle brackets), not as an executing element. Mark it solved
+    on the conclusion **not exploitable** -- this is React's default behavior working correctly, and it's
+    the contrast case for RE02/RE03.

@@ -1,0 +1,31 @@
+id: D02
+title: location.search -> innerHTML
+category: dom
+difficulty: beginner
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: search
+    param: x
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - '`getSource` for `type: search` reads a named query parameter -- check which one this lab uses (`param:
+    x`).'
+  - Same `innerHTML` sink as D01, but the source is `location.search` via `URLSearchParams`, so this one
+    *does* round-trip through the server as a normal GET request.
+  solution: 'Source: `?x=` query parameter. Sink: `innerHTML`. Visit:
+
+
+    `/lab/D02/run?x=<img src=x onerror=alert(1)>`
+
+
+    `getSource` reads `x` via `URLSearchParams`, `writeSink` inserts it unsanitized. Unlike D01 this value
+    is visible in server logs and `view-source`, but the vulnerability is still purely client-side (the
+    server never echoes it -- the client JS does). Fix: sanitize or escape before assigning to `innerHTML`.'

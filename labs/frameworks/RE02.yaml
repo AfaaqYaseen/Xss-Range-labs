@@ -1,0 +1,31 @@
+id: RE02
+title: dangerouslySetInnerHTML from a URL param
+category: frameworks
+difficulty: intermediate
+engine: react
+public:
+  objective: Assess this React 18 app for XSS via URL parameters (?name=, ?html=, ?title=).
+  description: React auto-escapes text children; look for anywhere that opts out of that.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: dangerous
+  defaults:
+    name: guest
+private:
+  why: dangerouslySetInnerHTML bypasses React's default escaping
+walkthrough:
+  hints:
+  - Try `?html=` instead of `?name=` -- this component's `pattern` is `dangerous`.
+  - '`dangerouslySetInnerHTML` does exactly what its name says: it bypasses React''s escaping entirely
+    and inserts raw HTML.'
+  solution: '`cfg.pattern === ''dangerous''` reads `?html=` and renders it via `e(''div'', { dangerouslySetInnerHTML:
+    { __html: html } })` -- React''s explicit, intentional opt-out of its default text-escaping. Visit:
+
+
+    `/lab/RE02/run?html=<img src=x onerror=alert(1)>`
+
+
+    The payload is inserted as real HTML and the handler fires. Fix: avoid `dangerouslySetInnerHTML` with
+    any user-controlled value; if raw HTML rendering is genuinely required, sanitize with DOMPurify first
+    (see the sanitizer labs for how that can still go wrong if misconfigured).'

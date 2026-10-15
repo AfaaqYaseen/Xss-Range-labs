@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dash-head">
+  <h1>229-lab XSS training range</h1>
+  <p>{{ solved|length }} / {{ total }} labs marked solved in this session.</p>
+</div>
+{% for cat in order %}
+  {% if grouped.get(cat) %}
+  <section class="cat-block">
+    <h2>{{ labels[cat] }} <span class="count">{{ grouped[cat]|length }}</span></h2>
+    <div class="lab-grid">
+      {% for lab in grouped[cat] %}
+      <a class="lab-card {{ 'solved' if lab.id in solved else '' }}" href="{{ url_for('lab_detail', lab_id=lab.id) }}">
+        <span class="lab-id">{{ lab.id }}</span>
+        <span class="lab-title">{{ lab.title }}</span>
+        <span class="lab-diff diff-{{ lab.difficulty }}">{{ lab.difficulty }}</span>
+        {% if lab.id in solved %}<span class="tick">✓</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>{{ lab.id }} target</title>
+<link rel="stylesheet" href="/static/css/style.css"></head>
+<body class="target-body">
+<div class="target-banner">{{ lab.id }} target &middot; {{ 'stored' if stored_lab else 'reflected' }}</div>
+
+{% if stored_lab %}
+<form method="post" action="/lab/{{ lab.id }}/submit" class="target-form">
+  {% for field in lab.engine_config.fields %}
+    <label>{{ field }}<textarea name="{{ field }}">{{ values.get(field, '') }}</textarea></label>
+  {% endfor %}
+  <button type="submit">Submit</button>
+</form>
+<form method="post" action="/lab/{{ lab.id }}/reset" class="target-form"><button type="submit">Reset</button></form>
+<hr>
+{% endif %}
+
+<div class="target-render">
+{{ fragment|safe }}
+</div>
+</body>
+</html>

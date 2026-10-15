@@ -1,0 +1,35 @@
+id: M03
+title: Mutation surviving DOMPurify
+category: mxss
+difficulty: expert
+engine: mxss
+public:
+  objective: Find markup that looks inert after one insertion pass but changes meaning after a second.
+  description: Markup is (optionally sanitized, then) inserted, serialized back to a string, and re-inserted.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  seed: <math><mtext><table><mglyph><style><b>m</b></style></mglyph></table></mtext></math>
+  sanitizeFirst: true
+private:
+  why: parser/serializer differentials mutate the tree across passes
+walkthrough:
+  hints:
+  - '`sanitizeFirst: true` this time -- DOMPurify runs *before* the mutation round-trip, so your seed
+    markup is sanitized once, and *then* the mutation happens on the sanitized output.'
+  - 'This seed (`<math><mtext><table><mglyph><style>...`) mirrors a real, historical DOMPurify bypass:
+    nesting a raw-text element (`<style>`) inside foreign-content elements that force namespace switches
+    DOMPurify''s string-based checks didn''t fully account for.'
+  solution: 'This reproduces the structure of a known DOMPurify mXSS bypass class: `<math><mtext>` switches
+    into MathML foreign content, `<mglyph>` and `<mtext>` further affect how child content is namespaced,
+    and `<style>` is a raw-text element whose content the HTML parser treats as opaque CSS text -- but
+    only in HTML namespace/`<style>` context. When DOMPurify sanitizes this structure (serializing its
+    internal DOM back to a string to check/clean it), the namespace-switching + raw-text interaction can
+    cause content that DOMPurify believed was inert (e.g. treated as `<style>` text data) to be re-parsed
+    differently once the *sanitized* output is inserted into a real document a second time -- the classic
+    mXSS pattern of "sanitize once, mutate on re-parse." Try seeding a payload with a scriptable sink
+    nested inside the `<style>` (e.g. an attribute with an event handler, or a `</style>` breakout sequence)
+    and compare pass 1''s sanitized DOM to what happens once that sanitized markup is serialized and re-inserted
+    by the lab''s second pass. If your DOMPurify version is already patched against this specific gadget,
+    that''s also a valid, correct conclusion -- document which payload you tried and why it no longer
+    mutates, since "confirmed patched" is as real a finding as "confirmed exploitable."'

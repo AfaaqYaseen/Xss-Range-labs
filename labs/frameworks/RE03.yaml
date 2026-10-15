@@ -1,0 +1,33 @@
+id: RE03
+title: dangerouslySetInnerHTML fed by a 'title' prop
+category: frameworks
+difficulty: advanced
+engine: react
+public:
+  objective: Assess this React 18 app for XSS via URL parameters (?name=, ?html=, ?title=).
+  description: React auto-escapes text children; look for anywhere that opts out of that.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: props
+  defaults:
+    name: guest
+private:
+  why: dangerouslySetInnerHTML bypasses React's default escaping
+walkthrough:
+  hints:
+  - This pattern is `props` and reads `?title=` -- `?html=`/`?name=` won't do anything here.
+  - The component builds a template string with the title and feeds the whole thing straight into `dangerouslySetInnerHTML`
+    -- same sink as RE02, different-looking source.
+  solution: '`cfg.pattern === ''props''` reads `?title=` and does `e(''div'', { dangerouslySetInnerHTML:
+    { __html: `<h3>${title}</h3>` } })` -- interpolating the title into a template string before handing
+    the whole thing to `dangerouslySetInnerHTML`. Visit:
+
+
+    `/lab/RE03/run?title=</h3><img src=x onerror=alert(1)><h3>`
+
+
+    (or simply `?title=<img src=x onerror=alert(1)>`, since the surrounding `<h3>` tags don''t need to
+    be closed cleanly for the `<img>` to still parse and fire). The lesson versus RE02: the dangerous
+    sink can be one step removed from the obviously-named `html` parameter -- any prop that ultimately
+    reaches `dangerouslySetInnerHTML`, however indirectly, is exploitable the same way.'

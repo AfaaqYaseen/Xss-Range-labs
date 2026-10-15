@@ -1,0 +1,28 @@
+id: F01
+title: Portal
+category: final
+difficulty: advanced
+engine: dom
+hidden: true
+public:
+  objective: Determine whether this application is exploitable for XSS. Conclude vulnerable, or not exploitable
+    and why, then mark it solved either way.
+  description: ''
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: hash
+private:
+  why: blind chain -- investigate
+walkthrough:
+  hints:
+  - 'This is a blind lab: there''s no description telling you the engine type or source/sink. Start by
+    viewing page source and any linked JS files to identify what kind of lab this is.'
+  - The engine is `dom` and the source type is one you've already seen in the D-series -- check `location.hash`
+    and trace it through to its sink.
+  solution: 'Investigation: view-source / DevTools shows this loads `engine_dom.js` with a `source: {type:
+    hash}` config -- identical shape to D01. Confirm by navigating to `/lab/F01/run#<img src=x onerror=alert(1)>`
+    and watching it execute via the `innerHTML` sink. Conclusion: **vulnerable**, same root cause as D01
+    (unsanitized `location.hash` -> `innerHTML`), presented without a description so you practice identifying
+    the pattern from the client-side code alone rather than being told the engine type up front.'

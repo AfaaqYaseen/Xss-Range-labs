@@ -1,0 +1,32 @@
+id: P04
+title: Naive regex 'sanitizer' (single pass, non-recursive)
+category: sanitizers
+difficulty: intermediate
+engine: purify
+public:
+  objective: Find input the configured sanitizer mishandles.
+  description: Untrusted HTML is sanitized, then the sanitized result is also inserted into the live DOM
+    below.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  options: {}
+  version: null
+  custom: strip_script_regex
+  seed: <scr<script>ipt>alert(1)</scr</script>ipt>
+private:
+  why: config gap (allowed dangerous tags/attrs) or a naive single-pass custom filter
+walkthrough:
+  hints:
+  - 'This isn''t DOMPurify at all -- `custom: strip_script_regex`. Open `static/js/engine_purify.js` and
+    read what that function actually does.'
+  - 'It''s a single regex, run once, non-greedy, non-recursive: `value.replace(/<script[^>]*>.*?<\/script>/gi,
+    "")`. Same class of bug as R04/S04.'
+  solution: '`customSanitize(''strip_script_regex'', value)` runs exactly one `replace(/<script[^>]*>.*?<\/script>/gi,
+    "")` pass -- not DOMPurify, and not recursive. The seed `<scr<script>ipt>alert(1)</scr</script>ipt>`
+    demonstrates the nested-match bypass: the regex finds and removes the inner `<script>ipt>alert(1)</scr</script>`
+    segment (matching from the *first* `<script...>` it finds to the *first* `</script>` after it, non-greedy),
+    and what''s left over reassembles into `<script>alert(1)</script>`. Paste it into the box and watch
+    the "sanitized output (string)" panel to see the reassembly, then watch it fire in the "inserted into
+    the DOM" panel. Fix: never hand-roll HTML sanitization with regex; use a real parser-based sanitizer
+    (DOMPurify) and never attempt to recursively remove tags with string replacement.'

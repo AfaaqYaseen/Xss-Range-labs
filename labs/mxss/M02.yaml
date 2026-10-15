@@ -1,0 +1,32 @@
+id: M02
+title: SVG desc mutation
+category: mxss
+difficulty: advanced
+engine: mxss
+public:
+  objective: Find markup that looks inert after one insertion pass but changes meaning after a second.
+  description: Markup is (optionally sanitized, then) inserted, serialized back to a string, and re-inserted.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  seed: <svg><desc><b>x</b></desc></svg>
+  sanitizeFirst: false
+private:
+  why: parser/serializer differentials mutate the tree across passes
+walkthrough:
+  hints:
+  - '`<svg><desc><b>x</b></desc></svg>` -- `<desc>` is foreign content inside SVG with its own serialization
+    quirks.'
+  - Compare `innerHTML` of the live DOM after pass 1 to the same markup re-inserted after being serialized
+    and parsed a second time -- does `<desc>`'s content stay HTML, or does something change namespace?
+  solution: 'Inside `<svg>`, `<desc>` (and `<title>`, `<foreignObject>`) switch parsing back to the HTML
+    namespace for their content, so `<b>x</b>` is parsed as a normal HTML bold element nested in the SVG
+    tree on pass 1 -- this part looks inert. The mutation appears when that structure is serialized back
+    to a string (`element.innerHTML` getter) and re-parsed: SVG/XML-ish serialization and namespace-switching
+    rules don''t perfectly round-trip through `innerHTML`, so content that was namespaced as foreign/SVG
+    content on the first pass can be re-interpreted as ordinary HTML (or vice versa) on the second, changing
+    which tags are "live" in a way neither a sanitizer nor a naive diff of the raw markup would catch.
+    This is the same parser class of bug behind several real DOMPurify mXSS CVEs involving `<svg><desc>`
+    payloads carrying nested `<style>`/scriptable content; this lab demonstrates the differential with
+    `sanitizeFirst: false` so you can see the raw browser behavior before M03 adds a sanitizer into the
+    mix.'

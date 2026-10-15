@@ -1,0 +1,42 @@
+id: R06
+title: URL-decode before filter
+category: reflected
+difficulty: advanced
+engine: reflected
+public:
+  objective: Make the target execute JavaScript via a GET parameter.
+  description: The page reflects the `q` parameter back into the page.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  params:
+  - q
+  context: html_text
+  transform:
+  - url_decode
+  filter:
+    type: keyword
+    blocked:
+    - script
+private:
+  why: user input reaches an HTML/JS context without output encoding, and any filter present is a single
+    non-recursive pass
+walkthrough:
+  hints:
+  - The value is URL-decoded on the server *before* the `script` keyword filter runs.
+  - If you URL-encode the word `script` yourself, the filter sees it encoded (and ignores it) -- then
+    the decode step turns it back into the real word afterward.
+  solution: 'Transform order is `url_decode` then the keyword filter. The filter only ever sees the *decoded*
+    value once, after your encoded payload has already been turned back into plaintext... but critically
+    the filter runs **after** decode, so simply double URL-encoding `script` means after the single `url_decode`
+    step it''s still encoded text (`%2573cript` decodes once to `%73cript`), which the filter doesn''t
+    recognize as the word "script" -- then the browser or a second decode never happens server-side, so
+    instead the practical bypass is to avoid the word `script` entirely:
+
+
+    `/lab/R06/run?q=%3Cimg%20src=x%20onerror=alert(1)%3E`
+
+
+    which decodes to `<img src=x onerror=alert(1)>` -- no `script` keyword involved at all, so the filter
+    never triggers. Fix: don''t rely on keyword denylists; HTML-encode output regardless of what transforms
+    ran first.'

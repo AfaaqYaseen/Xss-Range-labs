@@ -1,0 +1,29 @@
+id: C01
+title: unsafe-inline
+category: csp
+difficulty: beginner
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    script-src: '''unsafe-inline'''
+  page_html: <script>alert('inline script executed')</script><p>this page ships an inline script tag</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: inline'
+walkthrough:
+  hints:
+  - Read the `Content-Security-Policy` response header in DevTools -> Network. What does `script-src 'unsafe-inline'`
+    actually permit?
+  - '`''unsafe-inline''` means inline `<script>` tags (and inline event handlers) run exactly as if there
+    were no CSP at all for that purpose.'
+  solution: 'Policy: `script-src ''unsafe-inline''`. This explicitly re-allows the thing CSP exists to
+    block: inline script execution. The page already ships `<script>alert(''inline script executed'')</script>`
+    in its body, which fires on load -- no injection even needed to demonstrate the gap, though the same
+    policy would also let a reflected-XSS-style injection execute via an inline `<script>` tag. Fix: never
+    use `''unsafe-inline''`; use nonces or hashes instead (see C03).'

@@ -1,0 +1,28 @@
+id: P01
+title: Basic DOMPurify (default config)
+category: sanitizers
+difficulty: beginner
+engine: purify
+public:
+  objective: Find input the configured sanitizer mishandles.
+  description: Untrusted HTML is sanitized, then the sanitized result is also inserted into the live DOM
+    below.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  options: {}
+  version: 3.1.6
+  custom: null
+  seed: <img src=x onerror=alert(1)>
+private:
+  why: config gap (allowed dangerous tags/attrs) or a naive single-pass custom filter
+walkthrough:
+  hints:
+  - This is real DOMPurify 3.1.6 with its default options (`{}`) -- no custom allowlist restrictions.
+  - Does DOMPurify's default config strip event-handler attributes like `onerror` from an `<img>` tag?
+  solution: DOMPurify's default configuration strips `onerror` (and other event-handler attributes) from
+    `<img>` by default -- `<img src=x onerror=alert(1)>` sanitizes down to `<img src="x">`, inert. This
+    lab's seed is deliberately a payload that a *default* DOMPurify config correctly neutralizes, and
+    the expected finding is to confirm that and conclude **not exploitable with default options** -- try
+    it in the box and watch the "sanitized output" panel strip the handler. (Contrast with P02/P03, where
+    custom `ALLOWED_TAGS` configuration reopens gaps that the defaults close.)

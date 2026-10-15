@@ -1,0 +1,30 @@
+id: F02
+title: Dashboard widget
+category: final
+difficulty: advanced
+engine: pp
+hidden: true
+public:
+  objective: Determine whether this application is exploitable for XSS. Conclude vulnerable, or not exploitable
+    and why, then mark it solved either way.
+  description: ''
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  mode: deep
+  gadgets:
+  - type: innerHTML
+    path: template
+  defaults:
+    template: <b>ok</b>
+private:
+  why: blind chain -- investigate
+walkthrough:
+  hints:
+  - Blind lab -- check what JS file this page loads and what config it passes in `window.LAB_CONFIG`.
+  - This one loads the prototype-pollution engine with a `deep` merge and an `innerHTML` gadget reading
+    `template` -- same shape as PP01.
+  solution: 'Investigation: `window.LAB_CONFIG` / the loaded `engine_pp.js` script reveals `mode: deep`
+    and a `type: innerHTML` gadget reading `template`, identical in structure to PP01. Confirm by submitting
+    `{"__proto__":{"template":"<img src=x onerror=alert(1)>"}}` into the merge box. Conclusion: **vulnerable**,
+    same unguarded deep-merge root cause as PP01.'

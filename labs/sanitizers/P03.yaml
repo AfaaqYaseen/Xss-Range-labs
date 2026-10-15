@@ -1,0 +1,44 @@
+id: P03
+title: ALLOWED_TAGS includes svg/math
+category: sanitizers
+difficulty: advanced
+engine: purify
+public:
+  objective: Find input the configured sanitizer mishandles.
+  description: Untrusted HTML is sanitized, then the sanitized result is also inserted into the live DOM
+    below.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  options:
+    ALLOWED_TAGS:
+    - math
+    - mtext
+    - table
+    - mglyph
+    - style
+    - b
+  version: 3.1.6
+  custom: null
+  seed: <math><mtext><table><mglyph><style><b>m</b></style></mglyph></table></mtext></math>
+private:
+  why: config gap (allowed dangerous tags/attrs) or a naive single-pass custom filter
+walkthrough:
+  hints:
+  - '`ALLOWED_TAGS` here includes `math`, `mtext`, `table`, `mglyph`, `style`, `b` -- an unusual mix of
+    MathML and HTML tags together.'
+  - This is the exact structure from M03. Allowing `mglyph`/`mtext`/`table`/`style` together, even through
+    DOMPurify's own allowlist mechanism, mirrors a real historical DOMPurify namespace-confusion bypass.
+  solution: 'Allowing `math`/`mtext`/`mglyph`/`table`/`style` together in `ALLOWED_TAGS` reproduces the
+    structure behind a known, real DOMPurify mXSS bypass: `<math><mtext>` forces a MathML namespace switch,
+    `<mglyph>` and `<table>` interact with HTML''s foreign-content and table-construction rules in ways
+    that differ depending on namespace, and `<style>`''s raw-text parsing can end up scoped differently
+    than DOMPurify''s string-based serialization expects -- content DOMPurify believes is safely nested
+    inert text can become live markup once the sanitized output round-trips through the DOM a second time
+    (exactly as demonstrated directly, without a sanitizer, in M03). Paste the seed into the box, inspect
+    the "sanitized output (inserted into the DOM)" panel versus the raw "sanitized output (string)" panel,
+    and try extending the payload with a scriptable gadget nested inside the `<style>`/`<mglyph>` structure
+    to see whether it survives into the live DOM. If the installed DOMPurify version (3.1.6) has already
+    patched this specific gadget, confirming that and explaining why is the correct, valid conclusion
+    too. Fix: don''t combine foreign-content tags (`math`/`svg`-family) with raw-text tags (`style`/`script`/`textarea`/`title`)
+    in `ALLOWED_TAGS` unless you specifically need to and have tested the combination.'

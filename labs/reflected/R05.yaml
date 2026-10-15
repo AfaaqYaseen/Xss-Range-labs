@@ -1,0 +1,36 @@
+id: R05
+title: Character filter
+category: reflected
+difficulty: intermediate
+engine: reflected
+public:
+  objective: Make the target execute JavaScript via a GET parameter.
+  description: The page reflects the `q` parameter back into the page.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  params:
+  - q
+  context: html_text
+  transform: []
+  filter:
+    type: character
+    blocked:
+    - <
+    - '>'
+private:
+  why: user input reaches an HTML/JS context without output encoding, and any filter present is a single
+    non-recursive pass
+walkthrough:
+  hints:
+  - Only the literal characters `<` and `>` are stripped -- nothing else.
+  - Do you actually need `<` or `>` to run JavaScript in an attribute context? This lab reflects into
+    plain HTML text, but think about what other contexts need.
+  solution: '`q` reflects into `html_text`, and the filter strips every `<` and `>` character but nothing
+    else. Since the context is plain text, you can''t open a new tag -- but character filters like this
+    are usually paired with *other* vulnerable contexts elsewhere in a real app, and here the lesson is
+    that stripping two characters is not equivalent to encoding. Using HTML entities for the blocked characters
+    yourself doesn''t help since they''re stripped verbatim either way; the realistic finding for this
+    lab is that `<`/`>` character-stripping still leaves every other HTML metacharacter (`"`, `''`, `&`,
+    backticks) untouched, which is exploitable the moment this same value is reused in an attribute or
+    JS-string context elsewhere in the app. Fix: don''t denylist characters -- contextually encode output.'

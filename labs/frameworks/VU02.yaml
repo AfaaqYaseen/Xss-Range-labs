@@ -1,0 +1,29 @@
+id: VU02
+title: v-html from a URL param
+category: frameworks
+difficulty: intermediate
+engine: vue
+public:
+  objective: Assess this Vue 3 app for XSS via URL parameters (?name=, ?html=).
+  description: Vue escapes {{ }} interpolation; look for any v-html binding.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: vhtml
+  defaults:
+    name: guest
+private:
+  why: v-html inserts raw HTML
+walkthrough:
+  hints:
+  - Try `?html=` instead of `?name=` -- this component's `pattern` is `vhtml`.
+  - '`v-html="raw"` is Vue''s explicit opt-out of escaping, equivalent to React''s `dangerouslySetInnerHTML`.'
+  solution: '`v-html="raw"` binds the `raw` data property (populated from `?html=`) directly as innerHTML,
+    bypassing Vue''s default escaping entirely. Visit:
+
+
+    `/lab/VU02/run?html=<img src=x onerror=alert(1)>`
+
+
+    and it fires immediately on render. Fix: avoid `v-html` with user-controlled data; sanitize first
+    if raw HTML rendering is required.'

@@ -1,0 +1,25 @@
+id: VU01
+title: Default mustache escaping (safe control)
+category: frameworks
+difficulty: beginner
+engine: vue
+public:
+  objective: Assess this Vue 3 app for XSS via URL parameters (?name=, ?html=).
+  description: Vue escapes {{ }} interpolation; look for any v-html binding.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: interpolation
+  defaults:
+    name: guest
+private:
+  why: mustache interpolation IS escaped -- this one should not be exploitable
+walkthrough:
+  hints:
+  - Try `?name=<script>alert(1)</script>` -- this component uses `{{ name }}` mustache interpolation,
+    not `v-html`.
+  - Vue's `{{ }}` interpolation escapes its output by design, same idea as React's text children in RE01.
+  solution: This is the deliberately **safe control** for the Vue sub-category. `{{ name }}` mustache
+    interpolation is auto-escaped by Vue -- HTML metacharacters in `name` render as literal text, never
+    as markup. Confirm with `?name=<img src=x onerror=alert(1)>` (shows up as visible literal text) and
+    mark it solved on **not exploitable**. Contrast with VU02/VU03, which use `v-html` instead.

@@ -1,0 +1,34 @@
+id: C06
+title: strict CSP, reflected param only
+category: csp
+difficulty: advanced
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    default-src: '''self'''
+    script-src: '''self'''
+  page_html: <p>reflect a value with ?x= above and see where it lands</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: attr'
+walkthrough:
+  hints:
+  - '`default-src ''self''; script-src ''self''` -- no `''unsafe-inline''`, no `''unsafe-eval''`, no nonces,
+    no JSONP gadget shipped. Reflect a value with `?x=` and see where it lands.'
+  - With no inline-script allowance and no same-origin script-returning endpoint in this lab, is there
+    any remaining way to execute JavaScript, or is the correct answer that this one holds?
+  solution: 'This is the "strict, no gaps" control for the CSP category. `?x=` reflects into plain `html_text`
+    with no encoding (try `?x=<script>alert(1)</script>` or an `onerror` attribute payload and watch DevTools
+    console for CSP violation reports) -- every variant is blocked because `script-src ''self''` with
+    no `''unsafe-inline''` rejects inline `<script>` tags and inline event handlers outright, and there''s
+    no JSONP-style same-origin endpoint (unlike C04) or eval gadget (unlike C05) to abuse here. The correct,
+    intended conclusion is **not exploitable as configured**: document that you tried an inline-script
+    payload, an inline-event-handler payload, and checked for any same-origin script-servable endpoint,
+    and that CSP blocked all of them. Mark it solved on that conclusion -- recognizing a solid policy
+    is as much the skill being tested here as finding a bypass.'

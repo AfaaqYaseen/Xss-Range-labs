@@ -1,0 +1,37 @@
+id: PP03
+title: Clone-then-merge pollution
+category: prototype_pollution
+difficulty: expert
+engine: pp
+public:
+  objective: Pollute Object.prototype via the merge below, then get a gadget to read the polluted value
+    into a sink.
+  description: The merge implementation here uses 'clone' semantics.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  mode: clone
+  gadgets:
+  - type: innerHTML
+    path: template
+  defaults:
+    template: <b>default</b>
+private:
+  why: clone merge copies attacker keys without guarding __proto__/constructor/prototype
+walkthrough:
+  hints:
+  - 'Mode is `clone` this time: `JSON.parse(JSON.stringify(target))` then `deepMerge`. Does `JSON.stringify`/`parse`
+    change anything about whether `__proto__` pollution still works?'
+  - The clone step only clones `target` (the defaults) before merging your `source` into the clone --
+    your `source` JSON still goes through the same unguarded `deepMerge` afterward.
+  solution: '`cloneMerge` does `JSON.parse(JSON.stringify(target))` to clone the *defaults* object (this
+    step is irrelevant to the attack -- it never touches your input), then calls the same unguarded `deepMerge(clone,
+    source)` on your submitted JSON. So the identical payload as PP01 works here too:
+
+
+    `{"__proto__":{"template":"<img src=x onerror=alert(1)>"}}`
+
+
+    The "clone" naming might suggest extra safety, but cloning the *target* does nothing to protect against
+    polluting `Object.prototype` via the *source* -- the vulnerable step is still the final `deepMerge`
+    call. Fix: the guard needs to be in `deepMerge` itself, not in how the target is prepared beforehand.'

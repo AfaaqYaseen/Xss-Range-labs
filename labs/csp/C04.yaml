@@ -1,0 +1,39 @@
+id: C04
+title: JSONP endpoint under script-src 'self'
+category: csp
+difficulty: advanced
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    script-src: '''self'''
+  page_html: <script src="/lab/C04/jsonp?callback=alert"></script><p>page loads a same-origin JSONP endpoint</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: jsonp'
+walkthrough:
+  hints:
+  - '`script-src ''self''` allows any same-origin script URL -- including ones the app itself serves,
+    like a JSONP endpoint.'
+  - '`/lab/C04/jsonp?callback=...` writes `<callback>(''...'')` back verbatim as JavaScript. If `callback`
+    isn''t validated, what can you make it execute instead of calling a function?'
+  solution: '`script-src ''self''` allows loading `<script src="/lab/C04/jsonp?callback=...">` because
+    it''s same-origin -- CSP has no way to know the endpoint''s output is attacker-influenced. The JSONP
+    route (`app.py`''s `jsonp` view) does `f"{callback}(''jsonp endpoint reached'');"` with **no validation**
+    on `callback`, so instead of a function name you can supply arbitrary JavaScript:
+
+
+    `/lab/C04/jsonp?callback=alert(1);//`
+
+
+    which outputs `alert(1);//(''jsonp endpoint reached'');` -- valid, executing JavaScript, served from
+    your own origin, fully inside the `''self''` allowlist. The page already demonstrates this by loading
+    the endpoint with `callback=alert`, which calls `alert(''jsonp endpoint reached'')`. Fix: `script-src
+    ''self''` is only as strong as every same-origin endpoint that can return `Content-Type: text/javascript`
+    or be loaded as a script -- audit JSONP/callback endpoints, open redirects to script-servable paths,
+    and user uploads served from the same origin.'

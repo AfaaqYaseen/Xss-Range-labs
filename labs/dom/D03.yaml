@@ -1,0 +1,26 @@
+id: D03
+title: window.name -> innerHTML
+category: dom
+difficulty: intermediate
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: name
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - '`type: name` reads `window.name`, which persists across navigations within the same tab -- there''s
+    a helper panel at the bottom of the lab page to set it.'
+  - Set `window.name` via the helper form, then reload the page so `render()` re-reads it into `innerHTML`.
+  solution: 'Source: `window.name`. Sink: `innerHTML`. Open the lab, use the "helper: set localStorage
+    / sessionStorage / cookie / window.name" panel at the bottom, enter `<img src=x onerror=alert(1)>`,
+    click "set window.name (reload after)", then reload the page. `window.name` survives the reload (it''s
+    tied to the tab, not the page) and gets written straight into `innerHTML`. In a real attack, `window.name`
+    is typically set by a cross-origin page before redirecting the victim to the target. Fix: never trust
+    `window.name`, and sanitize before any DOM sink.'

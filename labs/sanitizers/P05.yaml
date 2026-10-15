@@ -1,0 +1,31 @@
+id: P05
+title: Naive tag-allowlist regex sanitizer
+category: sanitizers
+difficulty: advanced
+engine: purify
+public:
+  objective: Find input the configured sanitizer mishandles.
+  description: Untrusted HTML is sanitized, then the sanitized result is also inserted into the live DOM
+    below.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  options: {}
+  version: null
+  custom: allowlist_simple
+  seed: <a href="javascript:alert(1)">click</a>
+private:
+  why: config gap (allowed dangerous tags/attrs) or a naive single-pass custom filter
+walkthrough:
+  hints:
+  - '`custom: allowlist_simple` -- open `engine_purify.js` and check which tags it actually allows: `b,
+    i, em, strong, a`.'
+  - '`<a>` is allowed, and the regex only checks the *tag name*, not its attributes. What''s in an `<a
+    href="...">`''s `href` that the regex never inspects?'
+  solution: '`allowlist_simple` keeps any `<a ...>`/`<b>`/`<i>`/`<em>`/`<strong>` tag (open or close)
+    and strips everything else, but it only matches on the tag *name* -- it never inspects or filters
+    attribute values. `<a>` is in the allowlist, so `<a href="javascript:alert(1)">click</a>` passes through
+    completely untouched. Paste the seed into the box, click "sanitize", and then click the rendered link
+    in the "inserted into the DOM" panel to trigger the `javascript:` URL. Fix: an allowlist must validate
+    attribute values too (e.g. reject `javascript:`/`data:` URL schemes in `href`/`src`), not just tag
+    names -- this is exactly the class of gap DOMPurify''s real `ALLOWED_URI_REGEXP` exists to close.'

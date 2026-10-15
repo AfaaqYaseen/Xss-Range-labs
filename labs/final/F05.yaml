@@ -1,0 +1,33 @@
+id: F05
+title: Search box
+category: final
+difficulty: beginner
+engine: dom
+hidden: true
+public:
+  objective: Determine whether this application is exploitable for XSS. Conclude vulnerable, or not exploitable
+    and why, then mark it solved either way.
+  description: ''
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: search
+    param: q
+private:
+  why: blind chain -- investigate
+walkthrough:
+  hints:
+  - Blind lab -- check the loaded JS and config before trying anything. This one's a DOM-sourced lab reading
+    from the URL in a way you've seen before.
+  - '`source: {type: search, param: q}` -- same shape as D02/D05, just a different parameter name.'
+  solution: 'Investigation: `engine_dom.js` with `source: {type: search, param: q}` -- same pattern as
+    D02, reading `?q=` via `URLSearchParams` into `innerHTML` with no sanitization. Confirm with:
+
+
+    `/lab/F05/run?q=<img src=x onerror=alert(1)>`
+
+
+    Conclusion: **vulnerable**, same root cause as D02. This lab exists to practice noticing that a renamed
+    query parameter and a missing description don''t actually obscure the underlying bug once you check
+    the client-side source.'

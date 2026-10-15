@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ lab.id }} — {{ lab.title }}{% endblock %}
+{% block content %}
+<a class="back" href="{{ url_for('dashboard') }}">&larr; all labs</a>
+<h1>{{ lab.id }} — {{ lab.title }}</h1>
+<p class="meta">{{ lab.category }} &middot; {{ lab.difficulty }}</p>
+
+{% if not lab.hidden %}
+<p class="objective"><strong>Objective:</strong> {{ lab.public.objective }}</p>
+{% if lab.public.description %}<p class="desc">{{ lab.public.description }}</p>{% endif %}
+{% else %}
+<p class="objective"><strong>Objective:</strong> {{ lab.public.objective }}</p>
+<p class="desc blind">This is a blind challenge — no further details. Investigate the target and decide whether it is exploitable.</p>
+{% endif %}
+
+<p><a class="btn" href="{{ url_for('lab_run', lab_id=lab.id) }}" target="_blank" rel="noopener">Open target &#8599;</a></p>
+
+<form method="post" action="{{ url_for('lab_solve', lab_id=lab.id) }}">
+  <button class="btn {{ 'btn-solved' if solved else '' }}" type="submit">
+    {{ "✓ marked solved" if solved else "Mark as solved" }}
+  </button>
+</form>
+
+{% if lab.walkthrough %}
+<div class="walkthrough">
+  {% if lab.walkthrough.hints %}
+  <details class="hints">
+    <summary>Hints ({{ lab.walkthrough.hints|length }})</summary>
+    <ol>
+      {% for h in lab.walkthrough.hints %}
+      <li>
+        <details class="single-hint">
+          <summary>Hint {{ loop.index }}</summary>
+          <p>{{ h }}</p>
+        </details>
+      </li>
+      {% endfor %}
+    </ol>
+  </details>
+  {% endif %}
+  {% if lab.walkthrough.solution %}
+  <details class="solution">
+    <summary>Solution walkthrough (spoiler)</summary>
+    <div class="solution-body">{{ lab.walkthrough.solution|walkthrough }}</div>
+  </details>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

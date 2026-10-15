@@ -1,0 +1,27 @@
+id: S02
+title: Stored attribute context
+category: stored
+difficulty: intermediate
+engine: stored
+public:
+  objective: Store a value that executes JavaScript when the record is viewed.
+  description: Submit the `nickname` field below, then reload to see it rendered back.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  fields:
+  - nickname
+  context: quoted_attribute
+  transform_in: []
+  transform_out: []
+  filter:
+    type: none
+private:
+  why: stored value is rendered without output encoding at view time
+walkthrough:
+  hints:
+  - The `nickname` field is stored, then rendered inside a quoted HTML attribute.
+  - 'Same breakout technique as R02: close the quote, add an event handler.'
+  solution: 'Submit `nickname="><img src=x onerror=alert(1)>` and reload. The value is placed inside a
+    `value="..."` attribute with no encoding, so closing the quote and tag lets you inject a new element.
+    Fix: attribute-encode on output.'

@@ -1,0 +1,40 @@
+id: R02
+title: Quoted attribute context
+category: reflected
+difficulty: beginner
+engine: reflected
+public:
+  objective: Make the target execute JavaScript via a GET parameter.
+  description: The page reflects the `q` parameter back into the page.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  params:
+  - q
+  context: quoted_attribute
+  transform: []
+  filter:
+    type: none
+private:
+  why: user input reaches an HTML/JS context without output encoding, and any filter present is a single
+    non-recursive pass
+walkthrough:
+  hints:
+  - Check the page source around where `q` lands -- it's inside an HTML attribute, not loose text.
+  - You're already inside a double-quoted `value="..."` attribute. You don't need a full `<script>` tag
+    -- you need to get *out* of the attribute first.
+  solution: '`q` lands inside `<input value="{q}">` (`quoted_attribute` context, no filter). Closing the
+    quote and the tag, then adding an event handler, escapes the attribute:
+
+
+    `/lab/R02/run?q=" onmouseover=alert(1) x="`
+
+
+    or, to fire without interaction:
+
+
+    `/lab/R02/run?q="><img src=x onerror=alert(1)>`
+
+
+    Either breaks out of the `value="..."` attribute. Fix: HTML-attribute-encode the value (encode `"`,
+    `<`, `>`, `&`) before interpolating it.'

@@ -1,0 +1,42 @@
+id: PP05
+title: Object.assign merge (safe control example)
+category: prototype_pollution
+difficulty: intermediate
+engine: pp
+public:
+  objective: Pollute Object.prototype via the merge below, then get a gadget to read the polluted value
+    into a sink.
+  description: The merge implementation here uses 'assign' semantics.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  mode: assign
+  gadgets:
+  - type: innerHTML
+    path: template
+  defaults:
+    template: <b>default</b>
+private:
+  why: assign merge copies attacker keys without guarding __proto__/constructor/prototype
+walkthrough:
+  hints:
+  - Mode is `assign` -- `Object.assign(target, source)`. Does `Object.assign` ever let you write to `Object.prototype`
+    via a `__proto__` key in the source?
+  - '`Object.assign` only copies own enumerable properties, and critically treats `__proto__` as a *regular*
+    own property key on a plain object/array literal from `JSON.parse` -- it does NOT trigger the `__proto__`
+    *setter* the way bare `obj.__proto__ = x` assignment would. Compare that to `deepMerge`''s recursive
+    walk.'
+  solution: This is the deliberately **safe control** of the prototype-pollution category. `Object.assign(target,
+    source)` performs a shallow copy of own enumerable keys from `source` onto `target` -- if `source`
+    (from `JSON.parse`) has an own property literally named `"__proto__"`, `Object.assign` sets it as
+    an ordinary own property *on `target`* (because `[[Set]]` on a plain object triggers the `Object.prototype`
+    `__proto__` accessor only when the target doesn't already shadow it as an own data property from the
+    copy -- in practice, `Object.assign` with a JSON-parsed source containing a `__proto__` key does not
+    pollute `Object.prototype` in modern JS engines, because `JSON.parse` produces an own property named
+    `__proto__`, and `Object.assign`'s per-key `[[Set]]`, when the key is `__proto__`, invokes the inherited
+    setter which only reassigns `target`'s own prototype, not `Object.prototype` itself). Submitting the
+    same `{"__proto__":{"template":"..."}}` payload here does **not** pollute `Object.prototype.template`,
+    and the gadget (reading off a fresh `{}`) stays at its default. Verify this in the box, confirm the
+    gadget output never changes no matter what you submit, and mark it solved on the conclusion **not
+    exploitable -- shallow `Object.assign` does not reach `Object.prototype` the way the recursive `deepMerge`
+    in PP01-04 does**.

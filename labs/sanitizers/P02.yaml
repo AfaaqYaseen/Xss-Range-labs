@@ -1,0 +1,36 @@
+id: P02
+title: Restrictive ALLOWED_TAGS
+category: sanitizers
+difficulty: intermediate
+engine: purify
+public:
+  objective: Find input the configured sanitizer mishandles.
+  description: Untrusted HTML is sanitized, then the sanitized result is also inserted into the live DOM
+    below.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  options:
+    ALLOWED_TAGS:
+    - b
+    - i
+    - em
+    - strong
+  version: 3.1.6
+  custom: null
+  seed: <b>bold</b><script>alert(1)</script>
+private:
+  why: config gap (allowed dangerous tags/attrs) or a naive single-pass custom filter
+walkthrough:
+  hints:
+  - '`ALLOWED_TAGS` is restricted to `[b, i, em, strong]` -- `<script>` isn''t in that list, so DOMPurify
+    strips it. That part is working as intended.'
+  - The seed is `<b>bold</b><script>alert(1)</script>` -- confirm in the sanitized-output panel that the
+    `<script>` tag is gone and only `<b>bold</b>` survives.
+  solution: 'With `ALLOWED_TAGS: [b, i, em, strong]`, DOMPurify strips the `<script>` tag entirely (it''s
+    not in the allowlist), leaving `<b>bold</b>`, fully inert. This is the expected, correct behavior
+    of an `ALLOWED_TAGS` allowlist doing its job -- the intended finding is to try the default seed, confirm
+    the script tag is stripped, then try to find an allowed-tag-only bypass (none of `b`/`i`/`em`/`strong`
+    carry any attributes or event handlers that DOMPurify would pass through in this configuration either),
+    and conclude **not exploitable with this configuration** -- a tight allowlist of harmless tags is
+    one of the stronger sanitizer configurations possible.'

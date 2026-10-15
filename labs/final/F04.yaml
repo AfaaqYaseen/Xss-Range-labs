@@ -1,0 +1,32 @@
+id: F04
+title: Kiosk widget
+category: final
+difficulty: advanced
+engine: mxss
+hidden: true
+public:
+  objective: Determine whether this application is exploitable for XSS. Conclude vulnerable, or not exploitable
+    and why, then mark it solved either way.
+  description: ''
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  seed: <svg><desc><b>x</b></desc></svg>
+  sanitizeFirst: true
+private:
+  why: blind chain -- investigate
+walkthrough:
+  hints:
+  - Blind lab -- identify the engine first. This one's config matches a lab you've already seen in the
+    mXSS category, including the sanitizer setting.
+  - '`seed: <svg><desc><b>x</b></desc></svg>`, `sanitizeFirst: true` -- that''s the exact M04/M02-style
+    seed, but check which one actually matches by config, not just the markup.'
+  solution: 'Investigation: the loaded config is `engine: mxss`, `seed: <svg><desc><b>x</b></desc></svg>`,
+    `sanitizeFirst: true` -- same seed as M02 but *with* DOMPurify sanitizing between the two insertion
+    passes, making this the sanitized variant of that namespace-switching `<svg><desc>` differential.
+    Test the same approach as M02/M03: compare the DOM after the first (sanitized) insertion to the DOM
+    after the serialize-and-reinsert second pass, and try extending the seed with a scriptable gadget
+    nested in the `<desc>` to see if DOMPurify''s sanitized output still mutates into something live on
+    re-parse. Conclusion depends on what you find with the installed DOMPurify version -- document your
+    payload and the DOM diff either way; "confirmed exploitable" and "confirmed patched" are both valid,
+    complete answers for a blind lab.'

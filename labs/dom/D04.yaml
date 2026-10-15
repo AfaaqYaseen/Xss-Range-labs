@@ -1,0 +1,27 @@
+id: D04
+title: localStorage -> innerHTML
+category: dom
+difficulty: intermediate
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: localStorage
+    key: pref
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - '`type: localStorage, key: pref` reads `localStorage.getItem(''pref'')`. Use the helper panel to set
+    it, then reload.'
+  - '`localStorage` is same-origin and persists indefinitely -- if an attacker can get *any* script to
+    run once on this origin (even from a different, less obviously vulnerable lab/page), they can plant
+    a payload here that fires on every future visit.'
+  solution: 'Source: `localStorage.getItem(''pref'')`. Sink: `innerHTML`. Use the helper panel at the
+    bottom of the lab page, type `<img src=x onerror=alert(1)>` into the value box, click "set localStorage",
+    then reload the page -- `render()` re-reads `pref` on load and inserts it unsanitized. Fix: treat
+    `localStorage`/`sessionStorage` as untrusted input, same as any network source.'

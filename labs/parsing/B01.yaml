@@ -1,0 +1,24 @@
+id: B01
+title: Basic tokenization
+category: parsing
+difficulty: beginner
+engine: parse
+public:
+  objective: Predict how the browser tokenizes this markup, then verify against the rendered DOM tree.
+  description: Enter markup and inspect the resulting DOM structure below it.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  demo: <div><p>hello</p></div>
+private:
+  why: HTML tokenizer state machine rules (special elements, comments, quirks) reshape the tree
+walkthrough:
+  hints:
+  - This isn't an exploit lab -- there's nothing to pop. Type the seed markup into the box and compare
+    the DOM tree the browser actually builds to what you expected.
+  - '`<div><p>hello</p></div>` is well-formed; the interesting part is just confirming the tree nests
+    the way the tags suggest.'
+  solution: 'No payload needed -- this lab trains tokenizer intuition. Entering `<div><p>hello</p></div>`
+    produces exactly the nested tree you''d expect: `div > p > "hello"`. Mark it solved once you''ve compared
+    the rendered `innerHTML`/DOM tree against your prediction. The payoff comes in B02-B04, where the
+    tree *doesn''t* match naive expectations.'

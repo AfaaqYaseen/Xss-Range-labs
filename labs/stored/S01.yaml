@@ -1,0 +1,28 @@
+id: S01
+title: Basic stored XSS
+category: stored
+difficulty: beginner
+engine: stored
+public:
+  objective: Store a value that executes JavaScript when the record is viewed.
+  description: Submit the `comment` field below, then reload to see it rendered back.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  fields:
+  - comment
+  context: html_text
+  transform_in: []
+  transform_out: []
+  filter:
+    type: none
+private:
+  why: stored value is rendered without output encoding at view time
+walkthrough:
+  hints:
+  - Submit the `comment` field, then look at how it's rendered back on reload.
+  - 'Same idea as R01, just persisted: nothing encodes the value when it''s read back out of storage.'
+  solution: 'POST `comment=<img src=x onerror=alert(1)>` via the form, then reload `/lab/S01/run`. The
+    stored value is re-inserted into `html_text` with no output encoding, so the payload fires every time
+    the page loads -- that''s what makes it *stored* rather than reflected. Fix: encode on output, regardless
+    of what was done (or not done) on input.'

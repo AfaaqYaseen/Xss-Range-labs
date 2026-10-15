@@ -1,0 +1,36 @@
+id: D05
+title: URL-decoded hash
+category: dom
+difficulty: advanced
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: hash
+  transforms:
+  - url_decode
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - 'Source is `location.hash` again, but this time there''s a `transforms: [url_decode]` step applied
+    client-side before the sink.'
+  - Since the hash is already decoded once by the browser when you read `location.hash`, adding your own
+    `url_decode` transform on top means you may need to *double*-encode your payload in the URL.
+  solution: 'Source: `location.hash`, then `applyTransform(''url_decode'', value)` (`decodeURIComponent`)
+    runs on it before the `innerHTML` sink. `location.hash` already gives you the fragment largely as
+    typed, so sending a URL-encoded payload gets decoded an *extra* time by the lab''s own transform step.
+    Encode your payload once:
+
+
+    `/lab/D05/run#%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E`
+
+
+    `decodeURIComponent` turns it back into the real `<img ...>` tag before `innerHTML` renders it. (A
+    plain unencoded payload in the hash also works here, same as D01, since `decodeURIComponent` on an
+    already-plain string is a no-op -- the point of the lab is to notice that an *extra* decode step doesn''t
+    add any protection.) Fix: decoding is not sanitizing.'

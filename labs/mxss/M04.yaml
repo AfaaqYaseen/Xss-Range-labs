@@ -1,0 +1,34 @@
+id: M04
+title: Malformed attribute quoting
+category: mxss
+difficulty: intermediate
+engine: mxss
+public:
+  objective: Find markup that looks inert after one insertion pass but changes meaning after a second.
+  description: Markup is (optionally sanitized, then) inserted, serialized back to a string, and re-inserted.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  seed: <div id='a class=b'>x</div>
+  sanitizeFirst: false
+private:
+  why: parser/serializer differentials mutate the tree across passes
+walkthrough:
+  hints:
+  - '`<div id=''a class=b''>x</div>` -- look closely at the quoting. Is `class=b` really part of the `id`
+    attribute value, or could the browser''s attribute tokenizer read it differently once this gets serialized
+    and re-parsed?'
+  - Single-quoted attribute values are valid HTML, but when the DOM is serialized back out (`innerHTML`
+    getter), attribute values are typically re-emitted with double quotes -- think about what happens
+    if the *value itself* contains a double quote or other quote-like character after that re-serialization.
+  solution: 'On the first pass, `id=''a class=b''` parses correctly as a single attribute: `id="a class=b"`
+    (single quotes delimit the whole value, so `class=b` is just text inside it, not a second attribute).
+    The mutation appears when the browser serializes this element back to a string via `innerHTML` --
+    serialization normalizes attribute quoting (typically to double quotes) and escapes only certain characters.
+    If the attacker-controlled value itself contains a double quote or is otherwise positioned so the
+    round-trip serialize/re-parse cycle produces different attribute boundaries than the original markup
+    had, a single logical attribute can split into two on the second parse -- effectively smuggling a
+    new, attacker-chosen attribute (e.g. an event handler) into the tag. Experiment with seeds like `<div
+    id=''a onmouseover=alert(1) b="''>x</div>` and diff the DOM/outerHTML after pass 1 against pass 2
+    to see the attribute boundary shift. The general lesson: quoting style is not preserved through a
+    serialize/re-parse round-trip, and that asymmetry is exactly what mXSS exploits.'

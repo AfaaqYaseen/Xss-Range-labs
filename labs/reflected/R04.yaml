@@ -1,0 +1,37 @@
+id: R04
+title: Keyword filter (single pass)
+category: reflected
+difficulty: intermediate
+engine: reflected
+public:
+  objective: Make the target execute JavaScript via a GET parameter.
+  description: The page reflects the `q` parameter back into the page.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  params:
+  - q
+  context: html_text
+  transform: []
+  filter:
+    type: keyword
+    blocked:
+    - script
+    - onerror
+private:
+  why: user input reaches an HTML/JS context without output encoding, and any filter present is a single
+    non-recursive pass
+walkthrough:
+  hints:
+  - The filter removes the literal words `script` and `onerror` -- but only once, not recursively.
+  - What happens if the word `script` only *appears* after the filter has already run once?
+  solution: 'The filter does one non-recursive `re.sub` pass per blocked keyword. If you nest the keyword
+    inside itself, removing the inner copy leaves the outer copy intact:
+
+
+    `/lab/R04/run?q=<scrscriptipt>alert(1)</scrscriptipt>`
+
+
+    Stripping `script` once from `scrscriptipt` leaves `script`, reassembling `<script>alert(1)</script>`.
+    A case-insensitive attribute variant also works for `onerror`, e.g. `onerronerrorror`. Fix: filters
+    must be recursive (loop until no change) or, better, use an allowlist-based encoder instead of a denylist.'

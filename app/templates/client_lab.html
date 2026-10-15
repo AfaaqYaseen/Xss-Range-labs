@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"><title>{{ lab.id }} target</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="target-body">
+<div class="target-banner">{{ lab.id }} target &middot; {{ lab.engine }} engine</div>
+<div id="lab-root" class="target-render"></div>
+
+<script>window.LAB_ID = {{ lab.id|tojson }}; window.LAB_CONFIG = {{ config_json|safe }};</script>
+
+{% if lab.engine == "dom" %}
+  <script src="/static/js/engine_dom.js"></script>
+{% elif lab.engine == "parse" %}
+  <script src="/static/js/engine_parse.js"></script>
+{% elif lab.engine == "mxss" %}
+  <script src="/static/vendor/purify-3.1.6.min.js"></script>
+  <script src="/static/js/engine_mxss.js"></script>
+{% elif lab.engine == "pp" %}
+  <script src="/static/js/engine_pp.js"></script>
+{% elif lab.engine == "purify" %}
+  <script src="/static/js/engine_purify.js"></script>
+{% elif lab.engine == "react" %}
+  <script src="/static/vendor/react-18.3.1.development.js"></script>
+  <script src="/static/vendor/react-dom-18.3.1.development.js"></script>
+  <script src="/static/js/engine_react.js"></script>
+{% elif lab.engine == "vue" %}
+  <script src="/static/vendor/vue-3.4.27.global.js"></script>
+  <script src="/static/js/engine_vue.js"></script>
+{% endif %}
+</body>
+</html>

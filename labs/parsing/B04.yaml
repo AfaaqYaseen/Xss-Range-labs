@@ -1,0 +1,28 @@
+id: B04
+title: textarea parsing
+category: parsing
+difficulty: intermediate
+engine: parse
+public:
+  objective: Predict how the browser tokenizes this markup, then verify against the rendered DOM tree.
+  description: Enter markup and inspect the resulting DOM structure below it.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  demo: <textarea><b>not bold in here</b></textarea>
+private:
+  why: HTML tokenizer state machine rules (special elements, comments, quirks) reshape the tree
+walkthrough:
+  hints:
+  - '`<textarea>` is one of a handful of elements with special "raw text" parsing rules -- inside it,
+    tags are not parsed as markup at all.'
+  - Compare what you see rendered (as literal text inside the textarea) to what `innerHTML` reports as
+    the textarea's content.
+  solution: '`<textarea>` (along with `<title>`, `<style>`, `<script>`, `<xmp>`, `<iframe>`, `<noembed>`,
+    `<noframes>`) is a "raw text" / "escapable raw text" element: the tokenizer switches into a special
+    state where it looks only for the matching end tag (`</textarea>`) and treats everything else, including
+    `<b>` and `</b>`, as literal character data, not markup. So `<b>not bold in here</b>` renders as plain
+    visible text inside the textarea rather than becoming a bold element. This is exactly why D-series/S-series
+    labs that reflect into a `textarea` context are *not* trivially exploitable with a bare `<script>`
+    tag -- you''d first need to inject the literal string `</textarea>` to break out of raw-text mode
+    before any tag you add is actually parsed.'

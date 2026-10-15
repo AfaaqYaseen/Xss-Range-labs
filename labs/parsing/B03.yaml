@@ -1,0 +1,26 @@
+id: B03
+title: Comment parsing
+category: parsing
+difficulty: intermediate
+engine: parse
+public:
+  objective: Predict how the browser tokenizes this markup, then verify against the rendered DOM tree.
+  description: Enter markup and inspect the resulting DOM structure below it.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  demo: <!-- <b>inside a comment</b> -->
+private:
+  why: HTML tokenizer state machine rules (special elements, comments, quirks) reshape the tree
+walkthrough:
+  hints:
+  - Does the tokenizer treat `<!-- ... -->` as literal text, or does it actually parse what's inside the
+    comment as markup?
+  - Compare `innerHTML` of the resulting node to the raw text you typed -- is the `<b>` tag still there
+    as text, or did it vanish/execute?
+  solution: '`<!-- <b>inside a comment</b> -->` is tokenized as a single HTML comment node; everything
+    between `<!--` and `-->` is comment data, not parsed as tags. The `<b>...</b>` text is preserved verbatim
+    as comment content and never becomes a real DOM element. This matters for XSS because naive filters
+    sometimes assume "inside a comment" is a safe place to drop user input unescaped -- it''s safe *unless*
+    the attacker can inject the literal sequence `-->` to close the comment early and resume real markup
+    afterward.'

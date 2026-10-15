@@ -1,0 +1,32 @@
+id: C03
+title: nonce-based CSP
+category: csp
+difficulty: intermediate
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    script-src: '''self'' ''nonce-{NONCE}'''
+  page_html: <p>this lab issues a per-response nonce -- check the response header, not the page source</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: nonce'
+walkthrough:
+  hints:
+  - Each response gets a fresh nonce in `script-src 'self' 'nonce-...'` -- check the exact header value
+    on *this* response, not a cached one.
+  - Without knowing the current response's nonce in advance, you can't write `<script nonce="...">` yourself.
+    Is there any injection point that could leak or reuse the real nonce, or is this policy actually solid?
+  solution: 'A correctly generated, per-response, unpredictable nonce (`secrets.token_urlsafe(12)` server-side
+    here) is one of the strongest script-src configurations: an attacker injecting markup has no way to
+    know the current nonce value in advance, so they can''t craft a `<script nonce="...">` tag that CSP
+    will allow. This lab''s `page_html` doesn''t reflect any parameter and the probe context only reflects
+    `?x=` into plain text with no script execution path -- verify there''s no nonce leak (e.g. the nonce
+    never appears anywhere an attacker-controlled read could reach it, like a reflected error message
+    or a predictable pattern) and conclude this policy is **not exploitable** as configured. Document
+    what you checked.'

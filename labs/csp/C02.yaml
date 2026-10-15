@@ -1,0 +1,34 @@
+id: C02
+title: default-src self, no script-src
+category: csp
+difficulty: beginner
+engine: csp
+public:
+  objective: Assess the Content-Security-Policy header. Execute JavaScript despite it, or explain why
+    you can't.
+  description: Check DevTools -> Network -> response headers for the exact policy.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  policy:
+    default-src: '''self'''
+  page_html: <p>reflect a value with ?x= above and see where it lands</p>
+  probe_context: html_text
+private:
+  why: 'policy gap category: none'
+walkthrough:
+  hints:
+  - '`default-src ''self''` with no explicit `script-src` -- does `script-src` inherit from `default-src`,
+    and if so, does `''self''` block inline scripts?'
+  - '`''self''` alone (without `''unsafe-inline''`) already blocks inline `<script>` and inline event
+    handlers under the default CSP spec behavior -- so where''s the actual gap? Try reflecting a value
+    with `?x=` and see what context it lands in.'
+  solution: '`script-src` is unset, so it inherits from `default-src ''self''`, which *does* block inline
+    scripts and event handlers (no `''unsafe-inline''` was specified). This policy is actually reasonably
+    strong against classic inline-script injection. The intended finding for this lab is to attempt `?x=<script>alert(1)</script>`
+    and `?x=" onmouseover=alert(1) x="` and confirm the browser blocks both per the CSP (check the console
+    for a CSP violation report) -- then conclude and document that this specific policy, as configured,
+    is **not exploitable** for inline-script XSS, even though the page does reflect `x` unescaped into
+    HTML. (It''s still bad practice to reflect unescaped input -- `default-src ''self''` with no `script-src`
+    is doing the real protective work here, not the lack of a reflection bug.) Mark it solved once you''ve
+    verified and can explain why it holds.'

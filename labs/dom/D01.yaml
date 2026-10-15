@@ -1,0 +1,30 @@
+id: D01
+title: location.hash -> innerHTML
+category: dom
+difficulty: beginner
+engine: dom
+public:
+  objective: Trace a client-side source to a client-side sink and achieve execution.
+  description: Everything here happens in the browser -- view the page source / static/js/engine_dom.js.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  source:
+    type: hash
+private:
+  why: client-side source reaches innerHTML without sanitization
+walkthrough:
+  hints:
+  - 'Open `static/js/engine_dom.js` and trace `getSource` for `type: hash` -- the source is `location.hash`.'
+  - The sink is `root.innerHTML = ...` with no sanitization. Set the URL fragment to your payload and
+    the page re-renders on `hashchange`.
+  solution: 'Source: `location.hash` (URL fragment). Sink: `innerHTML`, no sanitizer. Navigate to:
+
+
+    `/lab/D01/run#<img src=x onerror=alert(1)>`
+
+
+    `getSource` decodes the hash and `writeSink` inserts it directly via `innerHTML`. Because the fragment
+    never reaches the server, this executes purely client-side -- note it still shows up in `DevTools
+    > Elements`, not in `view-source`/raw HTML. Fix: never assign untrusted strings to `innerHTML`; use
+    `textContent` or a sanitizer.'

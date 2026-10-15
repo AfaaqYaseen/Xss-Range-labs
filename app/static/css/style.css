@@ -1,0 +1,58 @@
+:root {
+  --bg: #0f1115; --panel: #171a21; --border: #2a2f3a; --text: #e6e8eb;
+  --muted: #8b93a1; --accent: #5b8cff; --good: #37c977; --warn: #ffb454; --bad: #ff6161;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 -apple-system, Segoe UI, Roboto, sans-serif; }
+a { color: var(--accent); text-decoration: none; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--border); }
+.brand { font-weight: 700; font-size: 16px; }
+.warn { color: var(--warn); font-size: 12px; }
+main { max-width: 980px; margin: 0 auto; padding: 24px; }
+.dash-head h1 { margin-bottom: 4px; }
+.dash-head p { color: var(--muted); }
+.cat-block { margin-top: 28px; }
+.cat-block h2 { font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.count { color: var(--muted); font-weight: 400; font-size: 13px; }
+.lab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.lab-card { display: flex; flex-direction: column; gap: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; position: relative; }
+.lab-card:hover { border-color: var(--accent); }
+.lab-card.solved { border-color: var(--good); }
+.lab-id { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.lab-title { font-size: 14px; color: var(--text); }
+.lab-diff { font-size: 11px; width: fit-content; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+.diff-beginner { background: #1d3a2a; color: var(--good); }
+.diff-intermediate { background: #33301a; color: var(--warn); }
+.diff-advanced, .diff-expert { background: #3a1d1d; color: var(--bad); }
+.tick { position: absolute; top: 10px; right: 10px; color: var(--good); }
+.back { display: inline-block; margin-bottom: 14px; }
+.meta { color: var(--muted); font-size: 13px; }
+.objective { background: var(--panel); border: 1px solid var(--border); padding: 12px 14px; border-radius: 8px; }
+.desc.blind { color: var(--muted); font-style: italic; }
+.btn { display: inline-block; background: var(--accent); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+.btn-solved { background: var(--good); }
+
+/* target (lab-run) pages get a plain light background so they read as
+   a separate "application under test", distinct from the range UI */
+.target-body { background: #f5f6f8; color: #14161a; font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+.target-banner { background: #14161a; color: #ffb454; padding: 8px 16px; font-size: 12px; }
+.target-render { padding: 20px; }
+.target-form { padding: 12px 20px 0; display: flex; gap: 10px; align-items: flex-end; }
+.target-form label { display: flex; flex-direction: column; font-size: 12px; color: #555; gap: 4px; }
+.target-form textarea { width: 320px; height: 60px; }
+.csp-hint { padding: 0 20px; font-size: 13px; color: #555; }
+#lab-root { min-height: 80px; }
+
+/* hints / solution walkthrough on the lab detail page */
+.walkthrough { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.walkthrough details { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+.walkthrough summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.walkthrough .hints ol { margin: 10px 0 0; padding-left: 18px; }
+.walkthrough .hints li { margin-bottom: 6px; }
+.walkthrough .single-hint { background: transparent; border: none; padding: 0; display: inline-block; }
+.walkthrough .single-hint summary { font-weight: 400; color: var(--accent); font-size: 13px; }
+.walkthrough .single-hint p { margin: 4px 0 0; color: var(--text); }
+.walkthrough .solution summary { color: var(--bad); }
+.walkthrough .solution-body { margin-top: 10px; }
+.walkthrough .solution-body p { margin: 0 0 10px; }
+.walkthrough .solution-body code { background: #2a2d33; padding: 1px 5px; border-radius: 4px; font-size: 13px; }

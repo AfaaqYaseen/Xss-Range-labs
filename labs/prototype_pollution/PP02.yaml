@@ -1,0 +1,37 @@
+id: PP02
+title: Deep-merge pollution -> href gadget
+category: prototype_pollution
+difficulty: advanced
+engine: pp
+public:
+  objective: Pollute Object.prototype via the merge below, then get a gadget to read the polluted value
+    into a sink.
+  description: The merge implementation here uses 'deep' semantics.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  mode: deep
+  gadgets:
+  - type: attr_href
+    path: redirect
+  defaults:
+    redirect: https://example.com
+private:
+  why: deep merge copies attacker keys without guarding __proto__/constructor/prototype
+walkthrough:
+  hints:
+  - Same `deep` merge gap as PP01, but the gadget this time reads a `redirect` path and writes it into
+    an `<a href>`.
+  - Pollute `Object.prototype.redirect` instead of `template`, and give it a `javascript:` URL.
+  solution: 'Submit:
+
+
+    `{"__proto__":{"redirect":"javascript:alert(1)"}}`
+
+
+    The deep merge writes `redirect` onto `Object.prototype`. The gadget reads `get({}, ''redirect'')`
+    off a fresh object -- the prototype-chain lookup resolves to your polluted value -- and renders `<a
+    href="javascript:alert(1)">gadget link</a>`. Click the rendered "gadget link" to trigger it (href-based
+    gadgets need a click, unlike `innerHTML` gadgets which fire on render if they contain an `onerror`-style
+    payload). Fix: same as PP01 -- guard dangerous keys in the merge, and never write an unvalidated value
+    into `href` without checking its scheme.'

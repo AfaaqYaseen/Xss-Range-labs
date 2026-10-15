@@ -1,0 +1,32 @@
+id: S05
+title: Multiple stored fields
+category: stored
+difficulty: intermediate
+engine: stored
+public:
+  objective: Store a value that executes JavaScript when the record is viewed.
+  description: Submit the `name` field below, then reload to see it rendered back.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+engine_config:
+  fields:
+  - name
+  - bio
+  context: html_text
+  transform_in: []
+  transform_out: []
+  filter:
+    type: none
+private:
+  why: stored value is rendered without output encoding at view time
+walkthrough:
+  hints:
+  - Two fields are stored (`name` and `bio`) but the lab description only mentions `name` -- check what
+    the `run` page actually renders.
+  - '`_run_stored` only ever reads and renders `cfg[''fields''][0]`, the first field in the list. Does
+    that match what the form actually submits for display?'
+  solution: '`engine_config.fields` is `[name, bio]`, and `_run_stored` renders `stored[fields[0]]`, i.e.
+    only `name`, into `html_text` with no encoding. Submitting `bio=<script>alert(1)</script>` alone does
+    nothing visible since `bio` isn''t the rendered field. Submit `name=<img src=x onerror=alert(1)>`
+    (the first field) and reload `/lab/S05/run` to see it fire. The lesson: when multiple fields are stored,
+    confirm exactly which one reaches a sink before spending time on the others.'

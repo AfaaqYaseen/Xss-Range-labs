@@ -1,0 +1,36 @@
+id: VU03
+title: v-html behind a 'sanitizer' that isn't wired up
+category: frameworks
+difficulty: advanced
+engine: vue
+public:
+  objective: Assess this Vue 3 app for XSS via URL parameters (?name=, ?html=).
+  description: Vue escapes {{ }} interpolation; look for any v-html binding.
+  instructions: Find an input that causes JavaScript to execute in the target, then come back and mark
+    the lab solved.
+client:
+  pattern: sanitizer
+  defaults:
+    name: guest
+private:
+  why: v-html inserts raw HTML
+walkthrough:
+  hints:
+  - The lab title says "a 'sanitizer' that isn't wired up" -- look at the actual template/data logic in
+    `engine_vue.js` for the `sanitizer` pattern, not just the lab description.
+  - '`isVHtml` is `true` for `pattern === ''sanitizer''` too, and the template logic in this build doesn''t
+    apply any distinct sanitization step for that pattern -- it''s exactly the same `v-html="raw"` binding
+    as VU02 under a different name.'
+  solution: 'Despite being named/described as having a sanitizer, `cfg.pattern === ''sanitizer''` routes
+    through the exact same `v-html="raw"` template as `vhtml` (`isVHtml` is true for both, and no separate
+    sanitization call is actually made anywhere in `engine_vue.js`). The same payload as VU02 works unchanged:
+
+
+    `/lab/VU03/run?html=<img src=x onerror=alert(1)>`
+
+
+    The lesson is a common real-world pattern: a component or variable *named* after a safety measure
+    ("sanitizer", "safeHtml", "cleanContent") that was planned, documented, or partially implemented elsewhere,
+    but never actually wired into the code path that matters. Naming and comments are not a substitute
+    for verifying the actual data flow -- always trace where the raw value is bound, not what the surrounding
+    code implies.'
